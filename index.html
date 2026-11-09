@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SOLARA — an interactive premium solar system explorer built with HTML, CSS and JavaScript." />
+  <title>SOLARA — Explore the Solar System</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="starfield" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="SOLARA home"><span class="brand-orbit">◌</span>SOLARA</a>
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="#home" class="active">Explore</a>
+      <a href="#missions">Missions</a>
+      <a href="#lab">Planet Lab</a>
+      <a href="#challenge">Space Challenge</a>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundToggle" aria-label="Toggle sound" title="Toggle sound">⌁</button>
+      <button class="menu-btn" id="menuToggle" aria-label="Open menu" aria-controls="mobileMenu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="page active-page">
+      <div class="hero-copy reveal">
+          <p class="eyebrow">A JOURNEY THROUGH OUR COSMIC NEIGHBOURHOOD</p>
+          <h1>Our place<br><span>in the cosmos.</span></h1>
+          <p class="lede">Eight planets. One star. Countless stories. Choose a world to begin your journey.</p>
+        <div class="hero-actions">
+          <button class="primary-btn" id="startExplore">Begin exploration <span>→</span></button>
+          <button class="text-btn" id="tourBtn">Take a guided tour</button>
+        </div>
+      </div>
+
+      <div class="solar-stage" id="solarStage" role="group" aria-label="Interactive model of the Solar System">
+        <canvas class="solar-canvas" id="solarCanvas" aria-label="Interactive three-dimensional model of the Solar System. Use the planet buttons below as an accessible alternative."></canvas>
+        <p class="solar-fallback-status" id="solarFallbackStatus" role="status" hidden></p>
+        <div class="system-kicker"><span class="live-dot"></span> SOLAR SYSTEM <span id="planetIndex">03 / 08</span></div>
+        <button class="return-system" id="returnToSystem" type="button" hidden>← Return to full system</button>
+        <div class="orbit-path orbit-mercury" style="--orbit-size:18%;--orbit-duration:12s"><button class="planet mercury planet-node" data-planet="Mercury" aria-label="Explore Mercury"></button></div>
+        <div class="orbit-path orbit-venus" style="--orbit-size:28%;--orbit-duration:18s;--orbit-delay:-5s"><button class="planet venus planet-node" data-planet="Venus" aria-label="Explore Venus"></button></div>
+        <div class="orbit-path orbit-earth" style="--orbit-size:38%;--orbit-duration:24s;--orbit-delay:-9s"><button class="planet earth planet-node" data-planet="Earth" aria-label="Explore Earth"></button></div>
+        <div class="orbit-path orbit-mars" style="--orbit-size:48%;--orbit-duration:31s;--orbit-delay:-14s"><button class="planet mars planet-node" data-planet="Mars" aria-label="Explore Mars"></button></div>
+        <div class="orbit-path orbit-jupiter" style="--orbit-size:61%;--orbit-duration:42s;--orbit-delay:-20s"><button class="planet jupiter planet-node" data-planet="Jupiter" aria-label="Explore Jupiter"></button></div>
+        <div class="orbit-path orbit-saturn" style="--orbit-size:73%;--orbit-duration:54s;--orbit-delay:-31s"><button class="planet saturn planet-node" data-planet="Saturn" aria-label="Explore Saturn"></button></div>
+        <div class="orbit-path orbit-uranus" style="--orbit-size:84%;--orbit-duration:66s;--orbit-delay:-47s"><button class="planet uranus planet-node" data-planet="Uranus" aria-label="Explore Uranus"></button></div>
+        <div class="orbit-path orbit-neptune" style="--orbit-size:96%;--orbit-duration:78s;--orbit-delay:-58s"><button class="planet neptune planet-node" data-planet="Neptune" aria-label="Explore Neptune"></button></div>
+        <button class="sun planet-node" data-planet="Sun" aria-label="Explore the Sun"><span></span></button>
+        <div class="planet-preview" id="planetPreview" aria-live="polite" aria-atomic="true">
+          <p class="eyebrow">WORLD IN FOCUS</p>
+          <h2 id="previewName">Earth</h2>
+          <p id="previewTagline">Our living blue world.</p>
+          <button class="preview-link" id="previewExplore" hidden>Explore Earth <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+
+      <div class="scroll-hint">SCROLL / EXPLORE <span>↓</span></div>
+      <section class="planet-strip" id="planetStrip" aria-label="Planet quick selection"></section>
+    </section>
+
+    <section id="planetDetail" class="page detail-page" aria-live="polite">
+      <div class="explorer-toolbar">
+        <button class="back-btn" id="backToSpace">← Back to solar system</button>
+        <nav class="explorer-tabs" id="explorerTabs" aria-label="Planet explorer sections" role="tablist">
+          <button class="explorer-tab active" id="tab-overview" type="button" role="tab" aria-selected="true" aria-controls="panel-overview" data-tab="overview">Overview</button>
+          <button class="explorer-tab" id="tab-structure" type="button" role="tab" aria-selected="false" aria-controls="panel-structure" data-tab="structure" tabindex="-1">Structure</button>
+          <button class="explorer-tab" id="tab-atmosphere" type="button" role="tab" aria-selected="false" aria-controls="panel-atmosphere" data-tab="atmosphere" tabindex="-1">Atmosphere</button>
+          <button class="explorer-tab" id="tab-moons" type="button" role="tab" aria-selected="false" aria-controls="panel-moons" data-tab="moons" tabindex="-1">Moons</button>
+        </nav>
+      </div>
+
+      <div class="explorer-panel active" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview">
+        <div class="detail-hero">
+          <div class="detail-copy">
+            <p class="eyebrow" id="detailEyebrow">PLANETARY PROFILE</p>
+            <h2 id="detailName">Earth</h2>
+            <p id="detailTagline" class="detail-tagline"></p>
+            <p id="detailDescription" class="detail-description"></p>
+            <div class="stat-grid" id="statGrid"></div>
+          </div>
+          <div class="detail-visual-wrap">
+            <div id="detailPlanet" class="detail-planet earth-large" aria-label="Earth visual"></div>
+            <div class="planet-glow"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="explorer-panel" id="panel-structure" role="tabpanel" aria-labelledby="tab-structure" hidden>
+        <div class="explorer-heading"><p class="eyebrow">A WORLD WITHIN</p><h3>Explore the <span id="structurePlanetName">Earth</span>.</h3><p>Select a layer in the cross-section or choose it from the layer list.</p></div>
+        <div class="structure-experience">
+          <div class="structure-visual-column">
+            <svg class="cross-section" id="crossSection" role="group" aria-label="Interactive planetary cross-section" viewBox="0 0 300 300"></svg>
+            <div class="layer-selector" id="layerSelector" aria-label="Planet layers"></div>
+          </div>
+          <article class="layer-info" id="layerInfo" aria-live="polite"></article>
+        </div>
+      </div>
+
+      <div class="explorer-panel" id="panel-atmosphere" role="tabpanel" aria-labelledby="tab-atmosphere" hidden>
+        <div class="explorer-heading"><p class="eyebrow">ABOVE THE SURFACE</p><h3>The <span id="atmospherePlanetName">Earth</span> atmosphere.</h3></div>
+        <div class="explorer-data-card" id="atmosphereContent"></div>
+      </div>
+
+      <div class="explorer-panel" id="panel-moons" role="tabpanel" aria-labelledby="tab-moons" hidden>
+        <div class="explorer-heading"><p class="eyebrow">NATURAL SATELLITES</p><h3>Moons of <span id="moonsPlanetName">Earth</span>.</h3></div>
+        <div class="explorer-data-card" id="moonsContent"></div>
+      </div>
+    </section>
+
+    <section id="missions" class="page standard-page missions-page">
+      <div class="page-intro missions-intro">
+        <p class="eyebrow">A HUMAN STORY, WRITTEN IN SPACE</p>
+        <h2>Curiosity,<br><span>in motion.</span></h2>
+        <p>Follow the missions that carried us farther, and the discoveries that changed how we see our cosmic neighbourhood.</p>
+      </div>
+
+      <section class="mission-archive" aria-label="Space mission and discovery archive">
+        <div class="mission-archive-heading">
+          <div>
+            <p class="eyebrow">THE EXPLORATION ARCHIVE</p>
+            <h3>One journey.<br><span>Many worlds.</span></h3>
+          </div>
+          <p>Choose an event along the timeline to uncover the mission, its findings and what came next.</p>
+        </div>
+
+        <form class="mission-filters" id="missionFilters" aria-label="Filter missions and discoveries">
+          <label>
+            <span>Country / agency</span>
+            <select id="missionAgencyFilter">
+              <option value="all">All agencies</option>
+              <option value="india">India / ISRO</option>
+              <option value="usa">USA / NASA</option>
+              <option value="europe">Europe / ESA</option>
+              <option value="japan">Japan / JAXA</option>
+              <option value="china">China / CNSA</option>
+              <option value="russia">Russia / Roscosmos</option>
+            </select>
+          </label>
+          <label>
+            <span>Destination</span>
+            <select id="missionTargetFilter">
+              <option value="all">All destinations</option>
+              <option value="Moon">Moon</option>
+              <option value="Mars">Mars</option>
+              <option value="Venus">Venus</option>
+              <option value="Mercury">Mercury</option>
+              <option value="Jupiter">Jupiter</option>
+              <option value="Saturn">Saturn</option>
+              <option value="Outer Solar System">Outer Solar System</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>
+            <span>Archive</span>
+            <select id="missionCategoryFilter">
+              <option value="all">Missions & discoveries</option>
+              <option value="mission">Missions</option>
+              <option value="discovery">Discoveries</option>
+            </select>
+          </label>
+          <button class="mission-reset" id="missionReset" type="button">Reset filters <span aria-hidden="true">↺</span></button>
+        </form>
+
+        <div class="mission-timeline-heading">
+          <p class="eyebrow">A CHRONOLOGICAL JOURNEY</p>
+          <p class="mission-result-count" id="missionResultCount" aria-live="polite"></p>
+        </div>
+        <div class="mission-timeline-viewport" id="missionTimelineViewport" role="region" aria-label="Chronological missions and discoveries timeline" tabindex="0">
+          <ol class="mission-timeline" id="missionTimeline"></ol>
+        </div>
+        <p class="mission-scroll-hint"><span aria-hidden="true">←</span> Scroll to travel through time <span aria-hidden="true">→</span></p>
+
+        <article class="mission-detail" id="missionDetail" aria-live="polite" aria-atomic="false"></article>
+      </section>
+    </section>
+
+    <section id="lab" class="page standard-page planet-lab-page">
+      <div class="page-intro lab-intro">
+        <p class="eyebrow">THE PLANET LAB</p>
+        <h2>Two worlds.<br><span>One perspective.</span></h2>
+        <p>Set two planets side by side. Explore the data, then follow the clues that explain how their worlds differ.</p>
+      </div>
+
+      <div class="lab-controls" aria-label="Choose planets to compare">
+        <label class="lab-select">
+          <span>WORLD A</span>
+          <select id="planetA" aria-label="Choose planet A"></select>
+        </label>
+        <button class="lab-swap" id="swapPlanets" type="button" aria-label="Swap the compared planets" title="Swap planets">⇄ <span>SWAP</span></button>
+        <label class="lab-select">
+          <span>WORLD B</span>
+          <select id="planetB" aria-label="Choose planet B"></select>
+        </label>
+        <button class="lab-reset" id="resetComparison" type="button">Reset comparison</button>
+      </div>
+      <p class="sr-only" id="comparisonStatus" role="status" aria-live="polite"></p>
+
+      <section class="lab-duel" aria-label="Visual comparison of selected planets">
+        <article class="lab-world lab-world-a">
+          <p class="lab-world-kicker">WORLD A</p>
+          <div class="lab-planet-stage"><div class="lab-planet earth-large" id="planetAVisual" role="img"></div></div>
+          <h3 id="planetAName">Earth</h3>
+          <p class="lab-world-type" id="planetAType">Rocky planet</p>
+        </article>
+        <div class="lab-versus" aria-hidden="true">VS</div>
+        <article class="lab-world lab-world-b">
+          <p class="lab-world-kicker">WORLD B</p>
+          <div class="lab-planet-stage"><div class="lab-planet mars-large" id="planetBVisual" role="img"></div></div>
+          <h3 id="planetBName">Mars</h3>
+          <p class="lab-world-type" id="planetBType">Rocky planet</p>
+        </article>
+      </section>
+
+      <section class="lab-size-section" aria-labelledby="sizeComparisonTitle">
+        <div class="lab-size-heading">
+          <div><p class="eyebrow">AT A GLANCE</p><h3 id="sizeComparisonTitle">A difference in scale.</h3></div>
+          <p>Illustrative size comparison<br><span>Not to scale</span></p>
+        </div>
+        <div class="lab-size-visual" id="sizeComparison" role="img" aria-label="Illustrative relative size comparison of Earth and Mars"></div>
+      </section>
+
+      <p class="lab-class-context" id="planetClassContext" hidden></p>
+
+      <section class="lab-insights" aria-labelledby="insightsTitle">
+        <div class="lab-insights-heading"><p class="eyebrow">READ BETWEEN THE WORLDS</p><h3 id="insightsTitle">What stands apart.</h3></div>
+        <div class="lab-insight-list" id="comparisonInsights"></div>
+      </section>
+
+      <section class="lab-data-section" aria-label="Scientific comparison categories">
+        <nav class="lab-tabs" id="comparisonTabs" role="tablist" aria-label="Planet comparison categories">
+          <button class="lab-tab active" id="lab-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="comparisonPanel" data-category="overview">Overview</button>
+          <button class="lab-tab" id="lab-tab-physical" type="button" role="tab" aria-selected="false" aria-controls="comparisonPanel" data-category="physical" tabindex="-1">Physical</button>
+          <button class="lab-tab" id="lab-tab-orbit" type="button" role="tab" aria-selected="false" aria-controls="comparisonPanel" data-category="orbit" tabindex="-1">Orbit & rotation</button>
+          <button class="lab-tab" id="lab-tab-atmosphere" type="button" role="tab" aria-selected="false" aria-controls="comparisonPanel" data-category="atmosphere" tabindex="-1">Atmosphere</button>
+          <button class="lab-tab" id="lab-tab-moons" type="button" role="tab" aria-selected="false" aria-controls="comparisonPanel" data-category="moons" tabindex="-1">Moons</button>
+        </nav>
+        <div class="lab-category-heading"><p class="eyebrow" id="comparisonCategoryEyebrow">THE BIG PICTURE</p><h3 id="comparisonCategoryTitle">Worlds in perspective</h3></div>
+        <div class="lab-comparison-panel" id="comparisonPanel" role="tabpanel" aria-labelledby="lab-tab-overview" tabindex="0"></div>
+      </section>
+    </section>
+
+    <section id="challenge" class="page standard-page challenge-page">
+      <div class="page-intro"><p class="eyebrow">SPACE CHALLENGE</p><h2>Learn by<br><span>playing.</span></h2><p>Puzzles and quizzes designed to make the Solar System stick.</p></div>
+      <div class="game-tabs"><button class="game-tab active" data-game="quiz">Solar Quiz</button><button class="game-tab" data-game="puzzle">Orbit Puzzle</button></div>
+      <div class="game-panel" id="gamePanel"></div>
+    </section>
+  </main>
+
+  <aside class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <a href="#home">Explore</a><a href="#missions">Missions</a><a href="#lab">Planet Lab</a><a href="#challenge">Space Challenge</a>
+  </aside>
+
+  <footer><span>SOLARA</span><p>Built as an educational interactive experience with HTML, CSS & JavaScript.</p><p>Planet sizes and distances are visually optimised for exploration; this visualization is not to scale.</p></footer>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+  <script src="js/planet-data.js"></script>
+  <script src="js/missions-data.js"></script>
+  <script src="js/solar-system.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
