@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SOLARA — Interactive Solar System
 
 A premium educational Solar System experience built with **only HTML, CSS and vanilla JavaScript**.
@@ -30,3 +31,7 @@ No build step and no framework are required.
 The Planet Lab reuses the shared planet records rather than duplicating facts. Its numeric comparison values are based on the [NASA NSSDCA Planetary Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/). Diameter comparisons use equatorial diameter; giant-planet gravity and mean temperature refer to the 1-bar level. Values are approximate and rounded for display. Jupiter and Saturn moon counts are explicitly treated as lower bounds, so the interface avoids asserting an ordering when the available counts cannot support one.
 
 The relative-size artwork is an educational illustration, not a scale model. Comparison insights are generated locally from the structured values and only summarize the active category; atmosphere comparisons remain qualitative when standardized numeric measures are unavailable. No AI service or additional rendering library is used.
+=======
+# Solaras
+an interactive web application to learn about our space
+>>>>>>> origin/main
