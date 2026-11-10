@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="SOLARA — an interactive premium solar system explorer built with HTML, CSS and JavaScript." />
+  <meta name="description" content="SOLARA — explore the Solar System, compare planets, and take on interactive Space Challenges." />
   <title>SOLARA — Explore the Solar System</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,13 +12,14 @@
   <header class="topbar">
     <a class="brand" href="#home" aria-label="SOLARA home"><span class="brand-orbit">◌</span>SOLARA</a>
     <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="#home" class="active">Explore</a>
+      <a href="#home" class="active" aria-current="page">Explore</a>
       <a href="#missions">Missions</a>
       <a href="#lab">Planet Lab</a>
-      <a href="#challenge">Space Challenge</a>
+      <a href="#challenge">Space Challenges</a>
     </nav>
     <div class="top-actions">
-      <button class="icon-btn" id="soundToggle" aria-label="Toggle sound" title="Toggle sound">⌁</button>
+      <button class="icon-btn" id="soundToggle" aria-label="Turn sound on" aria-pressed="false" title="Turn sound on">⌁</button>
+      <span class="sr-only" id="soundStatus" role="status" aria-live="polite"></span>
       <button class="menu-btn" id="menuToggle" aria-label="Open menu" aria-controls="mobileMenu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -39,6 +40,7 @@
         <canvas class="solar-canvas" id="solarCanvas" aria-label="Interactive three-dimensional model of the Solar System. Use the planet buttons below as an accessible alternative."></canvas>
         <p class="solar-fallback-status" id="solarFallbackStatus" role="status" hidden></p>
         <div class="system-kicker"><span class="live-dot"></span> SOLAR SYSTEM <span id="planetIndex">03 / 08</span></div>
+        <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">Start rotation</button>
         <button class="return-system" id="returnToSystem" type="button" hidden>← Return to full system</button>
         <div class="orbit-path orbit-mercury" style="--orbit-size:18%;--orbit-duration:12s"><button class="planet mercury planet-node" data-planet="Mercury" aria-label="Explore Mercury"></button></div>
         <div class="orbit-path orbit-venus" style="--orbit-size:28%;--orbit-duration:18s;--orbit-delay:-5s"><button class="planet venus planet-node" data-planet="Venus" aria-label="Explore Venus"></button></div>
@@ -243,14 +245,19 @@
     </section>
 
     <section id="challenge" class="page standard-page challenge-page">
-      <div class="page-intro"><p class="eyebrow">SPACE CHALLENGE</p><h2>Learn by<br><span>playing.</span></h2><p>Puzzles and quizzes designed to make the Solar System stick.</p></div>
-      <div class="game-tabs"><button class="game-tab active" data-game="quiz">Solar Quiz</button><button class="game-tab" data-game="puzzle">Orbit Puzzle</button></div>
-      <div class="game-panel" id="gamePanel"></div>
+      <div class="page-intro challenge-intro">
+        <p class="eyebrow">SOLARA SPACE CHALLENGES</p>
+        <h2>Knowledge,<br><span>in orbit.</span></h2>
+        <p>Two ways to explore what you know about our Solar System. Choose a challenge and chart your next discovery.</p>
+      </div>
+      <section class="challenge-progress" id="challengeProgress" aria-label="Space challenge progress"></section>
+      <p class="sr-only" id="challengeAnnouncement" role="status" aria-live="polite"></p>
+      <div class="challenge-root" id="challengeRoot"></div>
     </section>
   </main>
 
   <aside class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    <a href="#home">Explore</a><a href="#missions">Missions</a><a href="#lab">Planet Lab</a><a href="#challenge">Space Challenge</a>
+    <a href="#home" aria-current="page">Explore</a><a href="#missions">Missions</a><a href="#lab">Planet Lab</a><a href="#challenge">Space Challenges</a>
   </aside>
 
   <footer><span>SOLARA</span><p>Built as an educational interactive experience with HTML, CSS & JavaScript.</p><p>Planet sizes and distances are visually optimised for exploration; this visualization is not to scale.</p></footer>
@@ -259,5 +266,6 @@
   <script src="js/missions-data.js"></script>
   <script src="js/solar-system.js"></script>
   <script src="app.js"></script>
+  <script src="js/space-challenges.js"></script>
 </body>
 </html>

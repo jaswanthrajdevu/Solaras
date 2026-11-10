@@ -205,7 +205,6 @@
     camera.position.copy(defaultCameraPosition);
     camera.lookAt(defaultLookAt);
     camera.userData.lookAt = defaultLookAt.clone();
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setClearColor(0x050507, 0);
     if ('outputColorSpace' in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -351,6 +350,7 @@
     const pointer = new THREE.Vector2();
     const clock = new THREE.Clock();
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let motionEnabled = !reducedMotion.matches;
     const cameraTarget = new THREE.Vector3();
     const cameraPositionTarget = new THREE.Vector3();
     let selectedName = null;
@@ -359,14 +359,27 @@
     let frameId = 0;
     let active = true;
     let disposed = false;
+    let pixelRatio = 0;
+
+    function requestRender() {
+      if (!active || disposed || document.hidden || frameId) return;
+      clock.getDelta();
+      frameId = window.requestAnimationFrame(render);
+    }
 
     function resize() {
       if (disposed) return;
       const width = Math.max(stage.clientWidth, 1);
       const height = Math.max(stage.clientHeight, 1);
+      const nextPixelRatio = Math.min(window.devicePixelRatio || 1, width < 480 ? 1.25 : 1.5);
+      if (nextPixelRatio !== pixelRatio) {
+        pixelRatio = nextPixelRatio;
+        renderer.setPixelRatio(pixelRatio);
+      }
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
+      requestRender();
     }
 
     function updatePointer(event) {
@@ -388,6 +401,7 @@
         onHover(null);
         canvas.style.cursor = '';
       }
+      requestRender();
       return name;
     }
 
@@ -419,6 +433,7 @@
         elapsed: 0,
         duration: reducedMotion.matches ? 0 : duration
       };
+      requestRender();
     }
 
     function returnToSystem() {
@@ -431,6 +446,7 @@
         elapsed: 0,
         duration: reducedMotion.matches ? 0 : 1.1
       };
+      requestRender();
     }
 
     function updateCamera(delta) {
@@ -460,25 +476,27 @@
     }
 
     function render() {
+      frameId = 0;
       if (!active || disposed) return;
-      frameId = window.requestAnimationFrame(render);
+      if (document.hidden) return;
       const delta = Math.min(clock.getDelta(), 0.05);
       updateCamera(delta);
-      if (!reducedMotion.matches) {
+      if (motionEnabled) {
         const pulse = Math.sin(performance.now() * 0.00065);
         sunMaterial.emissiveIntensity = 1.7 + pulse * 0.045;
         sunGlows.forEach(({ material, baseOpacity }) => {
           material.opacity = baseOpacity * (1 + pulse * 0.08);
         });
         planets.forEach(({ orbit, mesh, visual }) => {
-          orbit.rotation.y += delta * visual.speed;
-          mesh.rotation.y += delta * visual.spin;
+          orbit.rotation.y += delta * visual.speed * 1.4;
+          mesh.rotation.y += delta * visual.spin * 1.4;
         });
         planets.get('Earth').clouds.rotation.y += delta * 0.035;
         sun.rotation.y += delta * planetVisuals.Sun.spin;
       }
       followSelectedPlanet();
       renderer.render(scene, camera);
+      if (motionEnabled || cameraMotion) frameId = window.requestAnimationFrame(render);
     }
 
     function onPointerMove(event) {
@@ -500,29 +518,39 @@
         onHover(null);
       }
       canvas.style.cursor = '';
+      requestRender();
     }
 
     function onVisibilityChange() {
       if (document.hidden) {
         window.cancelAnimationFrame(frameId);
         frameId = 0;
-      } else if (active && !frameId) {
-        clock.getDelta();
-        frameId = window.requestAnimationFrame(render);
-      }
+      } else requestRender();
+    }
+
+    function onContextLost(event) {
+      event.preventDefault();
+      if (disposed) return;
+      onError(new Error('The WebGL rendering context was lost.'));
+      dispose();
     }
 
     function onMotionPreferenceChange() {
-      clock.getDelta();
+      motionEnabled = !reducedMotion.matches;
       if (reducedMotion.matches) cameraMotion = null;
+      requestRender();
+    }
+
+    function setMotionEnabled(value) {
+      motionEnabled = Boolean(value);
+      requestRender();
     }
 
     function setActive(value) {
-      active = value;
-      if (active && !document.hidden && !frameId) {
-        clock.getDelta();
-        frameId = window.requestAnimationFrame(render);
-      } else if (!active && frameId) {
+      active = Boolean(value);
+      if (active) {
+        requestRender();
+      } else if (frameId) {
         window.cancelAnimationFrame(frameId);
         frameId = 0;
       }
@@ -535,7 +563,9 @@
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerleave', onPointerLeave);
+      canvas.removeEventListener('webglcontextlost', onContextLost);
       window.removeEventListener('resize', resize);
+      resizeObserver?.disconnect();
       document.removeEventListener('visibilitychange', onVisibilityChange);
       reducedMotion.removeEventListener('change', onMotionPreferenceChange);
       scene.traverse((object) => {
@@ -554,15 +584,18 @@
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointerleave', onPointerLeave);
+    canvas.addEventListener('webglcontextlost', onContextLost);
     window.addEventListener('resize', resize);
+    const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
+    resizeObserver?.observe(stage);
     document.addEventListener('visibilitychange', onVisibilityChange);
     reducedMotion.addEventListener('change', onMotionPreferenceChange);
     resize();
-    render();
 
     return {
       focusPlanet,
       returnToSystem,
+      setMotionEnabled,
       setActive,
       dispose,
       getSelectedPlanet: () => selectedName
