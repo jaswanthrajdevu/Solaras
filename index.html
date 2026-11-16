@@ -38,7 +38,15 @@
 
       <div class="solar-stage" id="solarStage" role="group" aria-label="Interactive model of the Solar System">
         <canvas class="solar-canvas" id="solarCanvas" aria-label="Interactive three-dimensional model of the Solar System. Use the planet buttons below as an accessible alternative."></canvas>
+        <div class="solar-loading" id="solarLoading" role="status" aria-live="polite" aria-atomic="true">
+          <span class="solar-loading-indicator" aria-hidden="true"></span>
+          <span class="solar-loading-copy">
+            <strong>Preparing the 3D Solar System</strong>
+            <span>Bringing the planets into view…</span>
+          </span>
+        </div>
         <p class="solar-fallback-status" id="solarFallbackStatus" role="status" hidden></p>
+        <button class="solar-retry" id="retrySolar3D" type="button" hidden>Try 3D again</button>
         <div class="system-kicker"><span class="live-dot"></span> SOLAR SYSTEM <span id="planetIndex">03 / 08</span></div>
         <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">Start rotation</button>
         <button class="return-system" id="returnToSystem" type="button" hidden>← Return to full system</button>

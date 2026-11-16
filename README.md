@@ -1,46 +1,43 @@
 # SOLARA — Interactive Solar System
 
-A premium educational Solar System experience built with **HTML, CSS and vanilla JavaScript**.
+SOLARA is a responsive astronomy learning experience built with HTML, CSS, vanilla JavaScript, and Three.js. It runs without a build step or application framework.
+
+## Run the application
+
+Open `index.html` in a modern browser. Three.js is loaded from jsDelivr; if the library or WebGL is unavailable, the interactive CSS Solar System remains available. The 3D view announces initialization, switches to the CSS model after a failure or timeout, and offers a retry control.
+
+## Application architecture
+
+- `index.html` defines the shared page structure and loads the classic scripts in dependency order.
+- `styles.css` contains the visual system, responsive layouts, reduced-motion rules, and CSS Solar System fallback.
+- `js/planet-data.js` is the canonical source for planet facts, planet order, numeric comparison values, shared formatters, and planet-data validation.
+- `js/missions-data.js` contains mission and discovery records, stable related-mission IDs, and record validation.
+- `js/solar-system.js` owns the Three.js scene, procedural canvas textures, camera focus, event-driven rendering, resize and visibility handling, reduced-motion behavior, and scene cleanup.
+- `app.js` connects navigation, the Solar System, Planet Explorer, mission archive, Planet Lab, and shared sound controls.
+- `js/space-challenges.js` provides the difficulty-based knowledge quiz, keyboard-operated orbit-order puzzle, progress display, question validation, and guarded local-storage persistence.
 
 ## Included experiences
 
-- Three.js Solar System with a CSS-orbit fallback, planet hover and selection, and camera focus
-- Planet Explorer with overview, structure, atmosphere, and moon sections
-- Missions and Discoveries archive with agency, destination, and category filters
-- Planet Lab with visual comparison, scientific categories, difference highlighting, and a deterministic insight engine
-- SOLARA Space Challenges: a difficulty-based knowledge quiz and an accessible planet-order puzzle
-- Optional sound feedback, a reduced-motion-aware planetary rotation control, keyboard navigation, and responsive layouts
+- Solar System exploration with planet selection, hover previews, camera focus, an accessible CSS fallback, and a user-controlled rotation toggle.
+- Planet Explorer with overview, interactive internal layers, atmosphere, and moon information.
+- Mission and discovery timeline with combined agency, destination, and event-type filters and selected-event details.
+- Planet Lab with selectable planet pairs, educational size illustrations, five scientific comparison categories, difference labels, and deterministic insights.
+- Knowledge Quiz with Explorer, Navigator, and Astronomer difficulties; explanations, results, and replay.
+- Orbit Puzzle with keyboard-accessible move controls, progress feedback, validation, and recovery actions.
+- Optional sound feedback, persistent challenge progress where browser storage permits, and responsive navigation.
 
-## Space Challenges
+## Scientific data
 
-The Knowledge Quiz offers Explorer, Navigator, and Astronomer levels with structured, deterministic questions based on the shared planet data in `js/planet-data.js`. It provides one question at a time, progress and score feedback, explanations, results, and replay controls.
+Planet Lab, the Explorer, and data-driven quiz questions reuse the shared records in `js/planet-data.js`; planet facts are not maintained in a separate comparison dataset. Approximate numeric measurements are based on the [NASA NSSDCA Planetary Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/). The shared metadata documents equatorial diameter, 1-bar giant-planet measurements, and sidereal rotation conventions.
 
-The Orbit Puzzle asks learners to order the eight planets outward from the Sun. Each planet has keyboard-accessible Move Up and Move Down controls, so no drag-and-drop interaction is required. Learners can check their order, review misplaced planets, retry, or restart.
+Jupiter and Saturn moon counts are minimum known counts, not exact totals; comparisons avoid claiming an ordering when both values are lower bounds. Atmosphere comparisons remain qualitative. Planet illustrations are educational visuals, not scale models. Data validators report malformed planet, mission, and quiz records to the development console.
 
-Challenge best scores, answer accuracy, completed quizzes, and puzzle completions are saved locally in the browser. The challenges continue to work if browser storage is unavailable. Sound is off until enabled and uses the existing site-wide sound control.
+## Resilience and accessibility
 
-The Solar System animation respects the operating system’s reduced-motion preference. Use the **Start rotation** control to explicitly enable orbit animation when reduced motion is active; the **Pause rotation** control is available whenever the animation is running.
+Challenge progress is stored under `solara.spaceChallenges.progress.v1`. If local storage is unavailable or invalid, challenges continue for the current visit and the interface explains that progress will not persist. Sound is opt-in and does not gate other interactions.
 
-## Run
+The Solar System renders continuously only while rotation or a camera transition is active; it otherwise renders on demand and pauses when hidden or inactive. Canvas pixel ratio is capped, and scene resources are disposed when the renderer is closed. Keyboard focus, live announcements, reduced-motion preferences, and mobile layouts are supported throughout.
 
-Open `index.html` in a modern browser. Three.js is loaded from a CDN; when it or WebGL is unavailable, the CSS orbital model remains available. No build step or framework is required.
+## Known limitations
 
-## Performance and resilience
-
-The Three.js scene renders continuously only while rotation is enabled or a camera transition is in progress. Otherwise it renders on demand after interaction or resizing. Rendering pauses when the tab is hidden or another major page is active, and resumes when the Solar System returns. A `ResizeObserver` keeps the canvas sized to its stage, with a window-resize fallback; the pixel ratio is capped at 1.5 and reduced on narrow stages.
-
-If WebGL cannot initialize or its context is lost, the accessible CSS Solar System remains available. Challenge progress uses guarded local storage and falls back to visit-only progress; sound remains optional and does not gate challenge interactions. Scene geometry, materials and textures are disposed when the renderer is explicitly disposed.
-
-## Planet Lab data
-
-## Scientific data and validation
-
-`js/planet-data.js` is the canonical source for the eight planets, their display order, and the Planet Lab numeric metrics: equatorial diameter (`diameterKm`), equatorial gravity (`gravityMps2`), mean temperature (`meanTemperatureC`), average solar distance (`distanceMillionKm`), orbital period (`orbitalPeriodDays`), sidereal rotation period (`rotationPeriodHours`), and known moon count (`moonCount`). Planet Explorer and Planet Lab format those same values through shared helpers; factual quiz questions that compare measurements derive their options and answers from them. Curated questions remain for concepts and descriptions.
-
-Comparison values are approximate and based on the [NASA NSSDCA Planetary Fact Sheet](https://nssdc.gsfc.nasa.gov/planetary/factsheet/). Giant-planet gravity and mean temperature refer to the 1-bar level. Shared formatters keep units consistent across the Explorer, Lab, and quiz.
-
-Jupiter and Saturn moon counts are marked as minimums, not exact totals. The Explorer labels them “At least … known moons,” and the comparison logic avoids drawing unsupported conclusions from lower bounds. Other moon counts are the known counts represented by this data snapshot; they may change as discoveries are confirmed.
-
-`js/missions-data.js` stores mission and discovery records. Related discoveries reference missions by stable ID rather than display name. Lightweight validators check required planet fields and numeric metrics, quiz structure and answer indexes, and mission IDs, years, categories, targets, agency groups, and related-mission references. They log actionable errors on local files and localhost during development, but do not prevent the application from rendering.
-
-Scientific content is intentionally a concise educational snapshot, not a live ephemeris or research database. Planet temperatures summarize values with differing measurement contexts; the 1-bar note applies to giant planets. Mean distances and periods are rounded, planetary structure descriptions include unresolved scientific models, and moon counts can become outdated. The relative-size artwork is illustrative rather than to scale; insight comparisons are deterministic, and atmospheres remain qualitative where standardized numeric measures are unavailable.
+Three.js requires a network connection to load from the CDN. Scientific values and moon counts are an approximate, curated data snapshot rather than live ephemerides; their sources and measurement conventions are shown in the Planet Lab.
