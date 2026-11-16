@@ -583,8 +583,11 @@ button:not(:disabled):active{filter:brightness(.9)}
 .detail-page.active{animation:page-enter .2s ease-out both}
 @keyframes page-enter{from{opacity:.82;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.standard-page.active,.active-page,.detail-page.active{animation:none}}
+<<<<<<< HEAD
 .saturn-large:before{width:170%;left:50%;transform:translateX(-50%) rotate(-18deg)}
 @media(max-width:1400px){.saturn-large:before{width:130%}}
 @media(max-width:1200px){.saturn-large:before{width:102%}}
 @media(max-width:900px){.saturn-large:before{width:min(140%,77vw)}}
 @media(max-width:600px){.detail-visual-wrap .saturn-large{width:min(320px,76vw)}}
+=======
+>>>>>>> 6e4c19a098716dbfc3b6ed685d09ec2d222ffd13

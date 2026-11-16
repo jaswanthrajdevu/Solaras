@@ -33,7 +33,10 @@ function showSolarFallback(error,attempt=solarInitializationAttempt){
  if(attempt!==solarInitializationAttempt||failedSolarAttempt===attempt)return;
  failedSolarAttempt=attempt;
  clearSolarInitializationTimer();
+<<<<<<< HEAD
  window.SOLARA_cancelThreeLoad?.();
+=======
+>>>>>>> 6e4c19a098716dbfc3b6ed685d09ec2d222ffd13
  console.error('The 3D Solar System is unavailable; using the CSS model instead.',error);
  if(solarSystem){
   solarSystem.dispose();
@@ -61,6 +64,7 @@ function initializeSolarSystem(){
  solarInitializationTimer=window.setTimeout(()=>{
   showSolarFallback(new Error('The 3D Solar System did not finish initializing.'),attempt);
  },10000);
+<<<<<<< HEAD
  if(typeof window.SOLARA_loadThree!=='function'){
   showSolarFallback(new Error('The Three.js loader is unavailable.'),attempt);
   return;
@@ -97,6 +101,37 @@ function initializeSolarSystem(){
    showSolarFallback(error,attempt);
   }
  }).catch(error=>showSolarFallback(error,attempt));
+=======
+ try{
+  if(typeof window.SOLARA_createSolarSystem!=='function')throw new Error('The Solar System renderer is unavailable.');
+  solarSystem=window.SOLARA_createSolarSystem({
+   stage:solarStage,
+   canvas:document.getElementById('solarCanvas'),
+   onHover:name=>setPlanetPreview(name),
+   onSelect:name=>selectPlanet(name,false),
+   onReady:()=>{
+    if(attempt!==solarInitializationAttempt||failedSolarAttempt===attempt)return;
+    clearSolarInitializationTimer();
+    solarLoading.hidden=true;
+   },
+   onError:error=>showSolarFallback(error,attempt)
+  });
+  if(!solarSystem){
+   showSolarFallback(new Error('The 3D Solar System could not be created.'),attempt);
+   return;
+  }
+  if(attempt!==solarInitializationAttempt||failedSolarAttempt===attempt){
+   solarSystem.dispose();
+   solarSystem=null;
+   return;
+  }
+  solarStage.classList.add('is-3d');
+  setCssPlanetControlsEnabled(false);
+  if(typeof solarSystem.setMotionEnabled==='function')solarSystem.setMotionEnabled(solarMotionEnabled);
+ }catch(error){
+  showSolarFallback(error,attempt);
+ }
+>>>>>>> 6e4c19a098716dbfc3b6ed685d09ec2d222ffd13
 }
 initializeSolarSystem();
 solarRetry.addEventListener('click',initializeSolarSystem);
@@ -127,8 +162,13 @@ const explorerTabs=document.getElementById('explorerTabs');
 function switchExplorerTab(tabName,focus=false){const tab=[...explorerTabs.querySelectorAll('[role="tab"]')].find(item=>item.dataset.tab===tabName);if(!tab)return;explorerTabs.querySelectorAll('[role="tab"]').forEach(item=>{const active=item===tab;item.classList.toggle('active',active);item.setAttribute('aria-selected',String(active));item.tabIndex=active?0:-1;document.getElementById(item.getAttribute('aria-controls')).hidden=!active});if(focus)tab.focus()}
 explorerTabs.addEventListener('click',event=>{const tab=event.target.closest('[role="tab"]');if(tab)switchExplorerTab(tab.dataset.tab)});
 explorerTabs.addEventListener('keydown',event=>{const tabs=[...explorerTabs.querySelectorAll('[role="tab"]')];const current=tabs.indexOf(document.activeElement);let next=current;if(event.key==='ArrowRight')next=(current+1)%tabs.length;else if(event.key==='ArrowLeft')next=(current-1+tabs.length)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();switchExplorerTab(tabs[next].dataset.tab,true)});
+<<<<<<< HEAD
 function pageMode(id,focusHeading=false,route=id,addHistory=true){const page=document.getElementById(id);document.querySelectorAll('main>.page').forEach(p=>p.classList.remove('active','active-page'));page.classList.add('active');if(id==='home')page.classList.add('active-page');const navigationId=id==='planetDetail'?'home':id;document.querySelectorAll('.desktop-nav a,.mobile-menu a').forEach(link=>{const current=link.hash===`#${navigationId}`;link.classList.toggle('active',current);if(current)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});solarSystem?.setActive(id==='home');if(route&&location.hash!==`#${route}`){const method=addHistory?'pushState':'replaceState';history[method]({solaraRoute:route},'',`#${route}`)}if(focusHeading){const heading=page.querySelector('h1,h2');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 function openPlanet(name,addHistory=true){const p=planets[name];selectedPlanet=name;setPlanetPreview(name);document.getElementById('detailName').textContent=name;document.getElementById('detailTagline').textContent=p.tagline;document.getElementById('detailDescription').textContent=p.description;document.getElementById('detailEyebrow').textContent=name==='Sun'?'STELLAR PROFILE':'PLANETARY PROFILE';const visual=document.getElementById('detailPlanet');visual.className='detail-planet '+name.toLowerCase()+'-large';const facts=p.comparison?window.SOLARA_DATA.getPlanetFacts(p):Object.entries(p.facts||{});document.getElementById('statGrid').innerHTML=facts.map(([k,v])=>`<div class="stat"><span>${k}</span><strong>${v}</strong></div>`).join('');document.getElementById('structurePlanetName').textContent=name;document.getElementById('atmospherePlanetName').textContent=name;document.getElementById('moonsPlanetName').textContent=name;renderStructure(name);renderAtmosphere(p);renderMoons(p);switchExplorerTab('overview');pageMode('planetDetail',false,`planet/${encodeURIComponent(name)}`,addHistory);document.getElementById('tab-overview').focus()}
+=======
+function pageMode(id,focusHeading=false){const page=document.getElementById(id);document.querySelectorAll('main>.page').forEach(p=>p.classList.remove('active','active-page'));page.classList.add('active');if(id==='home')page.classList.add('active-page');const navigationId=id==='planetDetail'?'home':id;document.querySelectorAll('.desktop-nav a,.mobile-menu a').forEach(link=>{const current=link.hash===`#${navigationId}`;link.classList.toggle('active',current);if(current)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});solarSystem?.setActive(id==='home');if(focusHeading){const heading=page.querySelector('h1,h2');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+function openPlanet(name){const p=planets[name];selectedPlanet=name;setPlanetPreview(name);document.getElementById('detailName').textContent=name;document.getElementById('detailTagline').textContent=p.tagline;document.getElementById('detailDescription').textContent=p.description;document.getElementById('detailEyebrow').textContent=name==='Sun'?'STELLAR PROFILE':'PLANETARY PROFILE';const visual=document.getElementById('detailPlanet');visual.className='detail-planet '+name.toLowerCase()+'-large';const facts=p.comparison?window.SOLARA_DATA.getPlanetFacts(p):Object.entries(p.facts||{});document.getElementById('statGrid').innerHTML=facts.map(([k,v])=>`<div class="stat"><span>${k}</span><strong>${v}</strong></div>`).join('');document.getElementById('structurePlanetName').textContent=name;document.getElementById('atmospherePlanetName').textContent=name;document.getElementById('moonsPlanetName').textContent=name;renderStructure(name);renderAtmosphere(p);renderMoons(p);switchExplorerTab('overview');pageMode('planetDetail');document.getElementById('tab-overview').focus()}
+>>>>>>> 6e4c19a098716dbfc3b6ed685d09ec2d222ffd13
 const layerPalette=['#b8c2d9','#d77d59','#ed9c58','#ffd17a','#9bcde8'];
 function renderStructure(name){
  const layers=planets[name].layers;
