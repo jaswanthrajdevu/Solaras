@@ -378,10 +378,12 @@
       ? `${Math.round(progress.answersCorrect / progress.questionsAnswered * 100)}%`
       : '—';
     const completed = progress.completedQuizzes + progress.puzzleCompletions;
+    const quizCount = progress.completedQuizzes;
+    const puzzleCount = progress.puzzleCompletions;
     const items = [
       ['Quiz best', bestValue, bestDetail],
       ['Overall accuracy', accuracy, `${progress.answersCorrect} correct of ${progress.questionsAnswered} answered`],
-      ['Challenges completed', String(completed), `${progress.completedQuizzes} quizzes · ${progress.puzzleCompletions} orbit puzzles`],
+      ['Challenges completed', String(completed), `${quizCount} ${quizCount === 1 ? 'quiz' : 'quizzes'} · ${puzzleCount} orbit ${puzzleCount === 1 ? 'puzzle' : 'puzzles'}`],
       ['Orbit puzzle', progress.puzzleCompletions ? 'Completed' : 'Not completed', 'Arrange all eight planets from the Sun']
     ];
     items.forEach(([label, value, detail]) => {

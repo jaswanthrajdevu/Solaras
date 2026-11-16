@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="SOLARA — explore the Solar System, compare planets, and take on interactive Space Challenges." />
+  <meta name="theme-color" content="#050507" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SOLARA — Explore the Solar System" />
+  <meta property="og:description" content="Explore planets, compare scientific data, and take on interactive Space Challenges." />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='12' fill='%237da6ff'/%3E%3Cellipse cx='32' cy='32' rx='27' ry='11' fill='none' stroke='%23c7d7ff' stroke-width='3'/%3E%3C/svg%3E" />
   <title>SOLARA — Explore the Solar System</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -38,7 +44,15 @@
 
       <div class="solar-stage" id="solarStage" role="group" aria-label="Interactive model of the Solar System">
         <canvas class="solar-canvas" id="solarCanvas" aria-label="Interactive three-dimensional model of the Solar System. Use the planet buttons below as an accessible alternative."></canvas>
+        <div class="solar-loading" id="solarLoading" role="status" aria-live="polite" aria-atomic="true">
+          <span class="solar-loading-indicator" aria-hidden="true"></span>
+          <span class="solar-loading-copy">
+            <strong>Preparing the 3D Solar System</strong>
+            <span>Bringing the planets into view…</span>
+          </span>
+        </div>
         <p class="solar-fallback-status" id="solarFallbackStatus" role="status" hidden></p>
+        <button class="solar-retry" id="retrySolar3D" type="button" hidden>Try 3D again</button>
         <div class="system-kicker"><span class="live-dot"></span> SOLAR SYSTEM <span id="planetIndex">03 / 08</span></div>
         <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">Start rotation</button>
         <button class="return-system" id="returnToSystem" type="button" hidden>← Return to full system</button>
@@ -261,7 +275,6 @@
   </aside>
 
   <footer><span>SOLARA</span><p>Built as an educational interactive experience with HTML, CSS & JavaScript.</p><p>Planet sizes and distances are visually optimised for exploration; this visualization is not to scale.</p></footer>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
   <script src="js/planet-data.js"></script>
   <script src="js/missions-data.js"></script>
   <script src="js/solar-system.js"></script>

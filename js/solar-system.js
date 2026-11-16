@@ -177,7 +177,8 @@
       canvas,
       onHover,
       onSelect,
-      onError
+      onError,
+      onReady
     } = options;
 
     if (!THREE || !stage || !canvas) {
@@ -355,6 +356,7 @@
     const cameraPositionTarget = new THREE.Vector3();
     let selectedName = null;
     let hoveredName = null;
+    let hasRendered = false;
     let cameraMotion = null;
     let frameId = 0;
     let active = true;
@@ -495,7 +497,17 @@
         sun.rotation.y += delta * planetVisuals.Sun.spin;
       }
       followSelectedPlanet();
-      renderer.render(scene, camera);
+      try {
+        renderer.render(scene, camera);
+      } catch (error) {
+        onError(error);
+        dispose();
+        return;
+      }
+      if (!hasRendered) {
+        hasRendered = true;
+        onReady?.();
+      }
       if (motionEnabled || cameraMotion) frameId = window.requestAnimationFrame(render);
     }
 
@@ -602,5 +614,55 @@
     };
   }
 
+  let threeLoadPromise = null;
+  let threeLoadScript = null;
+  let rejectThreeLoad = null;
+
+  function loadThree() {
+    if (window.THREE) return Promise.resolve(window.THREE);
+    if (threeLoadPromise) return threeLoadPromise;
+
+    threeLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js';
+      threeLoadScript = script;
+
+      const fail = (error) => {
+        if (threeLoadScript !== script) return;
+        script.onload = null;
+        script.onerror = null;
+        script.remove();
+        threeLoadScript = null;
+        rejectThreeLoad = null;
+        threeLoadPromise = null;
+        reject(error);
+      };
+
+      rejectThreeLoad = fail;
+      script.onload = () => {
+        if (!window.THREE) {
+          fail(new Error('The Three.js CDN response did not expose the library.'));
+          return;
+        }
+        script.onload = null;
+        script.onerror = null;
+        threeLoadScript = null;
+        rejectThreeLoad = null;
+        resolve(window.THREE);
+      };
+      script.onerror = () => fail(new Error('Three.js could not be loaded from jsDelivr.'));
+      document.head.appendChild(script);
+    });
+
+    return threeLoadPromise;
+  }
+
+  function cancelThreeLoad() {
+    if (rejectThreeLoad) rejectThreeLoad(new Error('Three.js loading did not complete in time.'));
+  }
+
+  window.SOLARA_loadThree = loadThree;
+  window.SOLARA_cancelThreeLoad = cancelThreeLoad;
   window.SOLARA_createSolarSystem = createSolarSystem;
 })();
